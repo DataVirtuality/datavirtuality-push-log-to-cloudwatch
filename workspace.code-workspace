@@ -33,7 +33,7 @@
                 "request": "launch",
                 "program": "cloudwatch.py",
                 "console": "integratedTerminal",
-                "args": ["log_auto", "C:\\vm_host_tmp_folder\\server.log"]
+                "args": ["log_auto", "C:\\vm_host_tmp_folder\\boosted-logs\\server.log"]
             },
             {
                 "name": "log_manual",
@@ -41,7 +41,7 @@
                 "request": "launch",
                 "program": "cloudwatch.py",
                 "console": "integratedTerminal",
-                "args": ["log_manual", "C:\\vm_host_tmp_folder\\server.log"]
+                "args": ["log_manual", "C:\\vm_host_tmp_folder\\boosted-logs\\server.log"]
             }
         ]
     }

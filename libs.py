@@ -176,18 +176,54 @@ def create_batches(events: List[Dict]) -> List[List[Dict[str, Union[str, int]]]]
     cumulative_size = 0
     for idx, val in enumerate(events):
         num_events += 1
-        d = cast(Dict[str, Union[str, int]], val)
-        size = len(cast(str, d['message'])) + EVENT_OVERHEAD
+        ev = cast(Dict[str, Union[str, int]], val)
+        size = len(cast(str, ev['message'])) + EVENT_OVERHEAD
 
-        if num_events > MAX_EVENTS or (cumulative_size + size) > MAX_BYTES or idx + 1 == len(events):
-            batches.append(events[start_pos: start_pos + num_events])
-            start_pos += num_events
-            num_events = 0
+        if idx + 1 == len(events):
+            # last event
+            batches.append(events[start_pos:])
+        elif num_events > MAX_EVENTS or (cumulative_size + size) > MAX_BYTES:
+            # we need to go back one to include the last event
+            batches.append(events[start_pos: idx])
+            start_pos = idx
+            num_events = 1
             cumulative_size = size
         else:
             cumulative_size += size
 
+    test_batches(batches, len(events), EVENT_OVERHEAD, MAX_BYTES, MAX_EVENTS)
+
     return batches
+
+
+def test_batches(
+    batches: List[List[Dict[str, Union[str, int]]]],
+    TOTAL_NUM_EVENTS: int,
+    EVENT_OVERHEAD: int,
+    MAX_BYTES: int,
+    MAX_EVENTS: int
+) -> None:
+    """
+    Test the batches.
+
+    Args:
+        batches (List[List[Dict[str, Union[str, int]]]]): [description]
+    """
+    total_events = 0
+    for batch in batches:
+        assert len(batch) <= MAX_EVENTS
+        total_events += len(batch)
+        sum_bytes = 0
+        sum_events = 0
+        for event in batch:
+            assert isinstance(event['timestamp'], int)
+            assert isinstance(event['message'], str)
+            sum_bytes += len(event['message']) + EVENT_OVERHEAD
+            sum_events += 1
+        assert sum_bytes <= MAX_BYTES
+        assert sum_events <= MAX_EVENTS
+        assert sum_events == len(batch)
+    assert total_events == TOTAL_NUM_EVENTS
 
 
 def post_log_events(
