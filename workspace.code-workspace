@@ -1,0 +1,48 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "cSpell.words": ["asdict", "boto", "tzname"]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Python: Current File",
+                "type": "python",
+                "request": "launch",
+                "program": "${file}",
+                "console": "integratedTerminal"
+            },
+            {
+                "name": "tz",
+                "type": "python",
+                "request": "launch",
+                "program": "cloudwatch.py",
+                "console": "integratedTerminal",
+                "args": ["tz"]
+            },
+            {
+                "name": "log_auto",
+                "type": "python",
+                "request": "launch",
+                "program": "cloudwatch.py",
+                "console": "integratedTerminal",
+                "args": ["log_auto", "C:\\vm_host_tmp_folder\\server.log"]
+            },
+            {
+                "name": "log_manual",
+                "type": "python",
+                "request": "launch",
+                "program": "cloudwatch.py",
+                "console": "integratedTerminal",
+                "args": ["log_manual", "C:\\vm_host_tmp_folder\\server.log"]
+            }
+        ]
+    }
+}
