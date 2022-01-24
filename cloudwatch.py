@@ -4,7 +4,7 @@ import os
 from typing import Any, Dict, Final, Generator, List, Tuple, Union, TextIO, Optional, TypeVar, cast
 import datetime as dt
 from zoneinfo import ZoneInfo, available_timezones
-from arguments import COMMAND_LOG_AUTO, COMMAND_LOG_OVERRIDE, app_args
+from arguments import COMMAND_LOG_AUTO, COMMAND_LOG_MANUAL, COMMAND_TZ, app_args
 from libs import ResultOfLogProcessing, post_results, process_log_file, read_prev_results
 import sys
 import dataclasses
@@ -15,14 +15,14 @@ import dataclasses
 LOG_GROUP_NAME: Final[str] = 'DataVirtualityETLLogGroup'
 LOG_STREAM_BASE_NAME: Final[str] = 'dv-server.log-'  # dv-server.log-2021-12-21
 APP_LOG_STREAM_NAME: Final[str] = 'DV_2_CW_logger'  # Log stream name for the application
-RESULTS_JSON_FILE: Final[str] = './results.json'
+RESULTS_JSON_FILE_NAME: Final[str] = './results'
 RESULTS_CSV_FILE: Final[str] = './results.csv'
 
 all_results: List[ResultOfLogProcessing] = []
-if app_args.command_name.lower() == 'tz':
+if app_args.command_name.lower() == COMMAND_TZ:
     print(available_timezones())
     sys.exit(0)
-elif app_args.command_name.lower() == COMMAND_LOG_OVERRIDE:
+elif app_args.command_name.lower() == COMMAND_LOG_MANUAL:
     results = process_log_file(
         skip_num_entries=app_args.skip,
         tzinfo=ZoneInfo(app_args.timezone),
@@ -36,7 +36,7 @@ elif app_args.command_name.lower() == COMMAND_LOG_OVERRIDE:
 elif app_args.command_name.lower() == COMMAND_LOG_AUTO:
     previous_results: ResultOfLogProcessing = read_prev_results(
         args=app_args,
-        path_results=RESULTS_JSON_FILE,
+        path_results=RESULTS_JSON_FILE_NAME + '.json',
         log_stream_base_name=LOG_STREAM_BASE_NAME,
         log_group_name=LOG_GROUP_NAME
     )
@@ -53,14 +53,15 @@ elif app_args.command_name.lower() == COMMAND_LOG_AUTO:
                 date_of_log_entries=previous_date,
                 server_log_base_file_path=previous_results.server_log_base_file_path,
                 process_server_log_file_path=rotated_server_log_path,
-                log_stream_base_name=previous_results.log_stream_name,
-                log_group_name=previous_results.log_group_name
+                log_stream_base_name=LOG_STREAM_BASE_NAME,
+                log_group_name=LOG_GROUP_NAME
             )
             all_results.append(results)
 
         # The server log has been rotated. Process the new server log and don't skip any entries
         previous_results.num_batches = 0
         previous_results.num_events_processed = 0
+        previous_results.num_events_skipped = 0
         previous_results.processed_server_log_file_path = previous_results.server_log_base_file_path
 
     # Process the current server.log
@@ -78,7 +79,13 @@ else:
     raise ValueError(f'Invalid command name: {app_args.command_name}')
 
 
-with open(RESULTS_JSON_FILE, 'wt', encoding='UTF8') as f:
+results_json_file: str
+if app_args.command_name.lower() == COMMAND_LOG_MANUAL:
+    results_json_file = RESULTS_JSON_FILE_NAME + '-' + str(dt.date.today()) + '.json'
+elif app_args.command_name.lower() == COMMAND_LOG_AUTO:
+    results_json_file = RESULTS_JSON_FILE_NAME + '.json'
+
+with open(RESULTS_JSON_FILE_NAME, 'wt', encoding='UTF8') as f:
     json.dump(dataclasses.asdict(results), f, sort_keys=True, indent=4)
 
 

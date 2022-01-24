@@ -12,8 +12,9 @@ from tzlocal import get_localzone
 # SPDX-License-Identifier: MIT
 
 
-COMMAND_LOG_OVERRIDE: Final[str] = 'log_override'
+COMMAND_LOG_MANUAL: Final[str] = 'log_manual'
 COMMAND_LOG_AUTO: Final[str] = 'log_auto'
+COMMAND_TZ: Final[str] = 'tz'
 
 
 def get_local_tz() -> ZoneInfo:
@@ -48,7 +49,6 @@ class _HelpAction(argparse._HelpAction):
 
 def add_common_options(subparser: argparse.ArgumentParser) -> None:
     subparser.add_argument('server_log_base_file_path', type=str, help='Base path to server log. Eg: /opt/datavirtuality/dvserver/standalone/log/server.log')
-    subparser.add_argument('--process_server_log_file_path', type=str, help='Path to server log you want to process. Eg: /opt/datavirtuality/dvserver/standalone/log/server.log.2021-12-21')
     subparser.add_argument(
         "--timezone", type=str, default=get_local_tz(), help="Specify the timezone (default: local time zone). "
         + "See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of valid timezones. "
@@ -68,31 +68,32 @@ parser.add_argument('-h', '--help', action=_HelpAction, help='show this help mes
 
 subparsers = parser.add_subparsers(dest="command_name", help='sub-command help')
 
-# create the parser for the "log" command
-subparser_log_manual = subparsers.add_parser(COMMAND_LOG_OVERRIDE, description="Process a log file by specifying configuration info", help='log --help')
+# create the parser for the "COMMAND_LOG_OVERRIDE" command
+subparser_log_manual = subparsers.add_parser(COMMAND_LOG_MANUAL, description="Process a log file by specifying configuration info", help=f'${COMMAND_LOG_MANUAL} --help')
 add_common_options(subparser_log_manual)
+subparser_log_manual.add_argument('--process_server_log_file_path', type=str, help='Path to server log you want to process. Eg: /opt/datavirtuality/dvserver/standalone/log/server.log.2021-12-21')
 
-# create the parser for the "tz" command
-subparser_tz = subparsers.add_parser('tz', description="List all of the available time zones.", help='tz --help')
+# create the parser for the "COMMAND_LOG_TZ" command
+subparser_tz = subparsers.add_parser(COMMAND_TZ, description="List all of the available time zones.", help=f'${COMMAND_TZ} --help')
 
-# create the parser for the "log" command
-subparser_log_auto = subparsers.add_parser(COMMAND_LOG_AUTO, description="Process a log file and use previous information", help='log --help')
+# create the parser for the "COMMAND_LOG_AUTO" command
+subparser_log_auto = subparsers.add_parser(COMMAND_LOG_AUTO, description="Process a log file and use previous information", help=f'${COMMAND_LOG_AUTO} --help')
 add_common_options(subparser_log_auto)
 
 
 if __name__ == '__main__':
     # app_args = parser.parse_args([])
     # app_args = parser.parse_args(["-h"])
-    # app_args = parser.parse_args(["tz"])
-    # app_args = parser.parse_args(["tz", "--help"])
+    # app_args = parser.parse_args([f"${COMMAND_TZ}"])
+    # app_args = parser.parse_args([f"${COMMAND_TZ}", "--help"])
     app_args = parser.parse_args(["log", "--help"])
     # app_args = parser.parse_args(["log"])
-    if app_args.command_name in [COMMAND_LOG_OVERRIDE, COMMAND_LOG_AUTO]:
+    if app_args.command_name in [COMMAND_LOG_MANUAL]:
         if 'process_server_log_file_path' not in app_args._get_kwargs():
             app_args.__dict__['process_server_log_file_path'] = app_args.server_log_base_file_path
     print(app_args)
 else:
     app_args = parser.parse_args()
-    if app_args.command_name in [COMMAND_LOG_OVERRIDE, COMMAND_LOG_AUTO]:
+    if app_args.command_name in [COMMAND_LOG_MANUAL]:
         if 'process_server_log_file_path' not in app_args._get_kwargs():
             app_args.__dict__['process_server_log_file_path'] = app_args.server_log_base_file_path

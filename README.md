@@ -41,3 +41,20 @@ pip3 install tzlocal boto3 more-itertools
 sh ./cw.sh
 or
 python cloudwatch.py /opt/datavirtuality/dvserver/standalone/log/server.log
+
+### Setting up cron job using flock
+
+*/1 * * * * /bin/flock -nx /dvutil/dvlogparser/cloudwatch.lockfile sudo -u datavirtuality -Hn sh -c "/dvutil/dvlogparser/run-app.sh"
+
+
+**flock** is a program that locks a file so that only one process can execute at a time.
+
+#### Synopsis
+
+flock [-sxon] [-w timeout] lockdir [-c] command...
+
+##### Options
+**-x, -e, --exclusive**
+Obtain an exclusive lock, sometimes called a write lock. This is the default.
+**-n, --nb, --nonblock**
+Fail (with an exit code of 1) rather than wait if the lock cannot be immediately acquired.

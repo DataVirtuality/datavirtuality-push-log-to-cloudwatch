@@ -299,7 +299,13 @@ def process_log_file(
 
     next_token = init_aws_stream(client, log_group_name, curr_log_stream)
 
-    rejected_events = post_log_events(client=client, log_group_name=log_group_name, log_stream_name=curr_log_stream, log_event_batches=log_event_batches, next_token=next_token)
+    rejected_events = post_log_events(
+        client=client,
+        log_group_name=log_group_name,
+        log_stream_name=curr_log_stream,
+        log_event_batches=log_event_batches,
+        next_token=next_token
+    )
 
     end_time = dt.datetime.today()
 
