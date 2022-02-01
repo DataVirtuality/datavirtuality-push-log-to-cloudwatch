@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #### Download and buildPython 3.9 on Amazon Linux 2
+sudo su - ec2-user
 mkdir ~/python_install
 cd ~/python_install
 wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tar.xz

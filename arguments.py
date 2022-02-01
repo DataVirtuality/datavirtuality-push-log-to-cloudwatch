@@ -94,6 +94,6 @@ if __name__ == '__main__':
     print(app_args)
 else:
     app_args = parser.parse_args()
-    if app_args.command_name in [COMMAND_LOG_MANUAL]:
+    if app_args.command_name in [COMMAND_LOG_MANUAL, COMMAND_LOG_AUTO]:
         if 'process_server_log_file_path' not in app_args._get_kwargs():
             app_args.__dict__['process_server_log_file_path'] = app_args.server_log_base_file_path

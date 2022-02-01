@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sudo su - datavirtuality
 cd /dvutil/dvlogparser
 python3.9 -m venv .venv
 source .venv/bin/activate
