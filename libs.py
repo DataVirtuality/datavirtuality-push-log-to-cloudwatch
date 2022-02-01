@@ -336,7 +336,7 @@ def read_prev_results(
     Read previous results from a file. Else use the default.
     """
     if os.path.isfile(path_results) and os.path.getsize(path_results) > 0:
-        with open('./results.json', 'rt', encoding='UTF8') as f:
+        with open(path_results, 'rt', encoding='UTF8') as f:
             prev_results = json.load(f)
         return ResultOfLogProcessing(**prev_results)
     else:
