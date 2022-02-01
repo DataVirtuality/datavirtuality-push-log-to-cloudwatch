@@ -79,13 +79,13 @@ else:
     raise ValueError(f'Invalid command name: {app_args.command_name}')
 
 
-results_json_file: str
+results_json_file: str = ''
 if app_args.command_name.lower() == COMMAND_LOG_MANUAL:
     results_json_file = RESULTS_JSON_FILE_NAME + '-' + str(dt.date.today()) + '.json'
 elif app_args.command_name.lower() == COMMAND_LOG_AUTO:
     results_json_file = RESULTS_JSON_FILE_NAME + '.json'
 
-with open(RESULTS_JSON_FILE_NAME, 'wt', encoding='UTF8') as f:
+with open(results_json_file, 'wt', encoding='UTF8') as f:
     json.dump(dataclasses.asdict(results), f, sort_keys=True, indent=4)
 
 
